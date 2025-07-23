@@ -1,64 +1,61 @@
 float ballX = 50;
-float ballY = 50;
+float ballY = 150;
 float ballSize = 25;
+float ballRadius = ballSize/2;
 
-float xVelocity = 5;
+float xVelocity = 1;
 float yVelocity = 0;
-float gravity = 1;
+float GRAVITY = 0.2;
 
 rectangle bat;
-float batX = 0;
-float batY = 0;
-float batWidth = 30;
-float batHeight = 50;
-
-float batVelocityX = 0;
-float batVelocityY = 0;
 
 ArrayList<rectangle> rectangles = new ArrayList<rectangle>();
+ArrayList<rectangle> rectanglesToRemove = new ArrayList<rectangle>();
 
 void setup(){
   size(500, 500);
   background(255);
   frameRate(60);
   
-  bat = new rectangle(0, 0, 30, 50, true);
-  
-  for(int i = 0; i < 3; i++){
-    rectangles.add(new rectangle(random(0, 450), random(0, 450), random(10, 50), random(10, 50), false));
-  }
+  bat = new rectangle(0, 0, 50, 30, true);
+
+  for(int y = 0; y < 3; y++){
+    for(int x = 0; x < 10; x++){
+      rectangles.add(new rectangle(x*50 + 10, y*40, 30, 20, false));
+    }
+  }  
 }
 
 void draw(){  
   
   bat.batCalculations();
   
-  yVelocity += gravity;
+  yVelocity += GRAVITY;
   
   ballX += xVelocity;
   ballY += yVelocity;
   
-  if(xVelocity > 25){
-    xVelocity = 15;
+  if(xVelocity > 20){
+    xVelocity = 20;
   }
-  if(yVelocity > 25){
-    yVelocity = 25;
+  if(yVelocity > 20){
+    yVelocity = 20;
   }
   
-  if(ballX < 0+(ballSize/2)){
-    ballX = (ballSize/2);
+  if(ballX < 0+ballRadius){
+    ballX = ballRadius;
     xVelocity *= -1;
   }
-  else if(ballX > width-(ballSize/2)){
-    ballX = width-(ballSize/2);
+  else if(ballX > width-ballRadius){
+    ballX = width-ballRadius;
     xVelocity *= -1;
   }
-  if(ballY < 0+(ballSize/2)){
-    ballY = (ballSize/2);
+  if(ballY < 0+ballRadius){
+    ballY = ballRadius;
     yVelocity *= -1;
   }
-  else if(ballY > height-(ballSize/2)){
-    ballY = height-(ballSize/2);
+  else if(ballY > height-ballRadius){
+    ballY = height-ballRadius;
     yVelocity *= -1;
   }
   
@@ -78,17 +75,27 @@ void draw(){
   for(rectangle rects: rectangles){
     rects.renderRect();
   }
+  for(rectangle rects: rectanglesToRemove){
+    rectangles.remove(rects);
+  }
+  
+  if(rectangles.size() == 0){
+    background(255);
+    noLoop();
+    fill(0);
+    text("you win", height/2, width/2);
+  }
 }
 
 class rectangle{
   
-  float rectX = 0;
-  float rectY = 0;
-  float rectWidth = 30;
-  float rectHeight = 50;
+  float rectX;
+  float rectY;
+  float rectWidth;
+  float rectHeight;
   
-  float rectVelocityX = 0;
-  float rectVelocityY = 0;
+  float rectVelocityX;
+  float rectVelocityY;
   
   int hits = 0;
   
@@ -103,31 +110,80 @@ class rectangle{
   }
   
   void collideWithRect(){
-    if(ballY > rectY && ballY < rectY+rectHeight && ballX > rectX-(ballSize/2) && ballX < rectX+rectWidth+(ballSize/2)){
+    
+    if(isNearX() && isNearY()){
+      
+      float reflectX = rectX;
+      float reflectY = rectY;
+      
+      if(ballY-(rectY+rectHeight/2) < 0){
+        reflectY += rectHeight;
+      }
+      if(ballX-(rectX+rectWidth/2) < 0){
+        reflectX += rectWidth;
+      }
+      
+      float reflexAngle = atan2((ballY-reflectY) , (ballX-reflectX));
+      
+      float speed = sqrt(sq(xVelocity) + sq(yVelocity));
+      
+      PVector reflectedVector = PVector.fromAngle(reflexAngle);
+      
+      reflectedVector.setMag(speed);
+      
+      xVelocity = reflectedVector.x;
+      yVelocity = reflectedVector.y;
+      
+    }
+    else if(isWithinY() && isNearX()){
       xVelocity += rectVelocityX;
       xVelocity *= -1;
-      if(rectVelocityX < 0){
-        ballX = rectX+rectWidth+(ballSize/2);
+      if(rectVelocityX < 0 && abs(rectVelocityX) > abs(xVelocity)){
+        ballX = rectX+rectWidth+ballRadius;
       }
-      else if(rectVelocityX > 0){
-        ballX = rectX-(ballSize/2);
+      else if(rectVelocityX > 0 && abs(rectVelocityX) > abs(xVelocity)){
+        ballX = rectX-ballRadius;
       }
     }
-    
-    if(ballX > rectX && ballX < rectX+rectWidth && ballY > rectY-(ballSize/2) && ballY < rectY+rectHeight+(ballSize/2)){
+    else if(isWithinX() && isNearY()){
       yVelocity += rectVelocityY;
       yVelocity *= -1;
       
       if(rectVelocityY < 0 && abs(rectVelocityY) > abs(yVelocity)){
-        ballY = rectY+rectHeight+(ballSize/2);
+        ballY = rectY+rectHeight+ballRadius;
       }
       else if(rectVelocityY > 0 && abs(rectVelocityY) > abs(yVelocity)){
-        ballY = rectY-(ballSize/2);
+        ballY = rectY-ballRadius;
       }
     }
+    else{
+      return;
+    }
+    hits++;
+  }
+  
+  boolean isWithinX(){
+    return ballX > rectX && ballX < rectX+rectWidth;
+  }
+  
+  boolean isWithinY(){
+    return ballY > rectY && ballY < rectY+rectHeight;
+  }
+  
+  boolean isNearX(){
+    return ballX > rectX-ballRadius && ballX < rectX+rectWidth+ballRadius && !isWithinX();
+  }
+  
+  boolean isNearY(){
+    return ballY > rectY-ballRadius && ballY < rectY+rectHeight+ballRadius && !isWithinY();
   }
   
   void renderRect(){
+    if(isBat){
+      fill(0, 0, 255);
+      rect(rectX, rectY, rectWidth, rectHeight);
+      return;
+    }
     switch(hits){
       case 0:
         fill(0, 255, 0);
@@ -139,13 +195,10 @@ class rectangle{
         fill(255, 0, 0);
         break;
       case 3:
-        rectangles.remove(this);
+        rectanglesToRemove.add(this);
         break;
        default:
          fill(0);
-    }
-    if(isBat){
-      fill(0, 0, 255);
     }
     rect(rectX, rectY, rectWidth, rectHeight);
   }
