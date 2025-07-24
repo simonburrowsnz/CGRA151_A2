@@ -11,7 +11,25 @@ void setup(){
   drawLine(250, 100, 350, 0);
   drawLine(250, 100, 350, 100);
   
-  drawLine(0, 0, 100, 100);
+  drawMidpointLine(250, 100, 250, 0);
+  drawMidpointLine(250, 100, 300, 0);
+  drawMidpointLine(250, 100, 350, 0);
+  drawMidpointLine(250, 100, 350, 50);
+  drawMidpointLine(250, 100, 350, 100);
+  
+  drawMidpointLine(250, 100, 300, 200);
+  drawMidpointLine(250, 100, 350, 200);
+  drawMidpointLine(250, 100, 350, 150);
+  drawMidpointLine(250, 100, 250, 200);
+
+  drawMidpointLine(250, 100, 200, 200);
+  drawMidpointLine(250, 100, 150, 200);
+  drawMidpointLine(250, 100, 150, 150);
+  drawMidpointLine(250, 100, 150, 100);
+  
+  drawMidpointLine(250, 100, 200, 0);
+  drawMidpointLine(250, 100, 150, 0);
+  drawMidpointLine(250, 100, 150, 50);
   
   //fill(0, 0, 255);
   //line(200, 200, 100, 100);
@@ -56,4 +74,8 @@ void drawLine(float startX, float startY, float endX, float endY){
       }
     }
   }
+}
+
+void drawMidpointLine(float startX, float startY, float endX, float endY){
+  drawLine(startX, startY, endX, endY);
 }
