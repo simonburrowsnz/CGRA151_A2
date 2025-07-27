@@ -31,6 +31,7 @@ void setup(){
   drawMidpointLine(250, 100, 150, 0);
   drawMidpointLine(250, 100, 150, 50);
   
+  
   //fill(0, 0, 255);
   //line(200, 200, 100, 100);
   //line(250, 100, 250, 0);
@@ -39,41 +40,66 @@ void setup(){
 }
 
 void drawLine(float startX, float startY, float endX, float endY){
-  
-  float currentX = startX;
-  float currentY = startY;
-  
-  float a = startY - endY;
-  float b = endX - startX;
-  float c = startX * endY - endX * startY;
-  
+
   float xLength = endX - startX;
   float yLength = endY - startY;
   
-  if(xLength >= yLength){
-    for(float x = startX; x < endX; x++){
-      float k = a*(x + 1) + b*(currentY + 1/2) + c;
+  float A = -yLength;
+  float B = xLength;
+  float C = startX * endY - endX * startY;
+  
+  int scaleX = xLength >= 0 ? 1 : -1;
+  int scaleY = yLength >= 0 ? 1 : -1;
 
-      point(x, currentY);
+  xLength = abs(xLength);
+  yLength = abs(yLength);
+  
+      int currentX = Math.round(startX);
+      int currentY = Math.round(startY);
       
-      if(k<0){
-        currentY++;
-        point(x, currentY);
+    if (xLength >= yLength) {
+  
+      endX = Math.round(endX);
+      
+      float midpointY = (scaleY > 0) ? currentY + 0.5f : currentY - 0.5f;
+      float k = A * (currentX + scaleX) + B * midpointY + C;
+  
+      while (currentX != endX) {
+        point(currentX, currentY);
+        currentX += scaleX;
+  
+        if (scaleY * k > 0){
+          currentY += scaleY;
+          k += A * scaleX + B * scaleY;
+        } else {
+          k += A * scaleX;
+        }
+        midpointY = (scaleY > 0) ? currentY + 0.5f : currentY - 0.5f;
+      }
+    } else {
+      // Steep slope: iterate over y
+  
+      endY = Math.round(endY);
+  
+      float midpointX = (scaleX > 0) ? currentX + 0.5f : currentX - 0.5f;
+      float k = A * midpointX + B * (currentY + scaleY) + C;
+  
+      while (currentY != endY) {
+        point(currentX, currentY);
+        currentY += scaleY;
+  
+        if (scaleX * k > 0){    
+          currentX += scaleX;
+          k += A * scaleX + B * scaleY;
+        } else {
+          k += B * scaleY;
+        }
+        
+        midpointX = (scaleX > 0) ? currentX + 0.5f : currentX - 0.5f;
       }
     }
-  }
-  else{
-    for(float y = startY; y < endY; y++){
-      float k = a*(currentX + 1) + b*(y + 1/2) + c;
-      
-      point(currentX, y);
-      
-      if(k>0){
-        currentX++;
-        point(currentX, y);
-      }
-    }
-  }
+  
+    point(endX, endY);  // final point
 }
 
 void drawMidpointLine(float startX, float startY, float endX, float endY){
