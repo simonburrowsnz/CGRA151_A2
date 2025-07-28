@@ -1,50 +1,46 @@
-
-
 void setup(){
   size(500, 500);
   background(255);
   noSmooth();
-  
-  //noLoop();
 }
 
 void draw(){
-  fill(255, 0, 0);
-  
   background(255);
-  drawMidpointLine(250, 250, mouseX, mouseY);
-  //drawLine(250, 100, 250, 0);
-  //drawLine(250, 100, 300, 0);
-  //drawLine(250, 100, 350, 0);
-  //drawLine(250, 100, 350, 100);
+  // If the mouse is pressed it uses my function //
+  if(mousePressed){
+      stroke(255, 0, 0);
+      drawLine(250, 250, mouseX, mouseY);
+  }
+  else{
+    stroke(0, 0, 255);
+    line(250, 250, mouseX, mouseY);
+  }
   
-  //drawMidpointLine(250, 100, 250, 0); // Up
-  //drawMidpointLine(250, 100, 250, 200); // Down
-  //drawMidpointLine(250, 100, 350, 100); // Right
-  //drawMidpointLine(250, 100, 150, 100); // Left
+  stroke(255, 0, 0);
+  drawLine(250, 100, 250, 0); // Up
+  drawLine(250, 100, 250, 200); // Down
+  drawLine(250, 100, 350, 100); // Right
+  drawLine(250, 100, 150, 100); // Left
   
-  //drawMidpointLine(250, 100, 300, 0);
-  //drawMidpointLine(250, 100, 350, 0);
-  //drawMidpointLine(250, 100, 350, 50);
-  
-  //drawMidpointLine(250, 100, 300, 200);
-  //drawMidpointLine(250, 100, 350, 200);
-  //drawMidpointLine(250, 100, 350, 150);
+  // Top right quarter //
+  drawLine(250, 100, 300, 0);
+  drawLine(250, 100, 350, 0);
+  drawLine(250, 100, 350, 50);
 
-  //drawMidpointLine(250, 100, 200, 200);
-  //drawMidpointLine(250, 100, 150, 200);
-  //drawMidpointLine(250, 100, 150, 150);
+  // Bottom right quarter //
+  drawLine(250, 100, 300, 200);
+  drawLine(250, 100, 350, 200);
+  drawLine(250, 100, 350, 150);
+
+  // Botton left quarter //
+  drawLine(250, 100, 200, 200);
+  drawLine(250, 100, 150, 200);
+  drawLine(250, 100, 150, 150);
   
-  //drawMidpointLine(250, 100, 200, 0);
-  //drawMidpointLine(250, 100, 150, 0);
-  //drawMidpointLine(250, 100, 150, 50);
-  
-  
-  //fill(0, 0, 255);
-  //line(200, 200, 100, 100);
-  //line(250, 100, 250, 0);
-  //line(250, 100, 350, 0);
-  //line(250, 100, 350, 100);
+  // Top left quarter //
+  drawLine(250, 100, 200, 0);
+  drawLine(250, 100, 150, 0);
+  drawLine(250, 100, 150, 50);
 }
 
 void drawLine(float startX, float startY, float endX, float endY){
@@ -56,8 +52,8 @@ void drawLine(float startX, float startY, float endX, float endY){
   float B = xLength;
   float C = startX * endY - endX * startY;
   
-  int scaleX = xLength >= 0 ? 1 : -1;
-  int scaleY = yLength >= 0 ? 1 : -1;
+  int stepX = xLength >= 0 ? 1 : -1;
+  int stepY = yLength >= 0 ? 1 : -1;
 
   xLength = abs(xLength);
   yLength = abs(yLength);
@@ -68,85 +64,51 @@ void drawLine(float startX, float startY, float endX, float endY){
   boolean isShallow = xLength >= yLength;
   
   if (isShallow) {
-
-    println(scaleX + "X, " + scaleY + "Y" + " not steep");
+    // If it doesn't have this it doesn't work //
+    if(stepX == 1){
+      drawLine(endX, endY, startX, startY);
+      return;
+    }
     endX = Math.round(endX);
     
-    float midpointY = (scaleY > 0) ? currentY + 0.5f : currentY - 0.5f;
-    float k = A * (currentX + scaleX) + B * midpointY + C;
+    float midpointY = (stepY > 0) ? currentY + 0.5f : currentY - 0.5f;
+    float k = A * (currentX + stepX) + B * midpointY + C;
 
     while (currentX != endX) {
       point(currentX, currentY);
-      currentX += scaleX;
+      currentX += stepX;
 
-      if (scaleY * k > 0){
-        currentY += scaleY;
-        k += A * scaleX + B * scaleY;
+      if (stepY * k > 0){
+        currentY += stepY;
+        k += A * stepX + B * stepY;
       } else {
-        k += A * scaleX;
+        k += A * stepX;
       }
-      midpointY = (scaleY > 0) ? currentY + 0.5f : currentY - 0.5f;
     }
-  } else {
-    // Steep slope: iterate over y
-    println(scaleX + "X, " + scaleY + "Y" + " steep");
+  } 
+  else {
+    // If it doesn't have this it doesn't work //
+    if(stepY == -1){  
+      drawLine(endX, endY, startX, startY);
+      return;
+    }
     endY = Math.round(endY);
 
-    float midpointX = (scaleX > 0) ? currentX + 0.5f : currentX - 0.5f;
-    float k = A * midpointX + B * (currentY + scaleY) + C;
+    float midpointX = (stepX > 0) ? currentX + 0.5f : currentX - 0.5f;
+    float k = A * midpointX + B * (currentY + stepY) + C;
 
     while (currentY != endY) {
       point(currentX, currentY);
-      currentY += scaleY;
+      currentY += stepY;
 
-      if (scaleX * k > 0){    
-        currentX += scaleX;
-        k += A * scaleX + B * scaleY;
+      if (stepX * k > 0){    
+        currentX += stepX;
+        k += A * stepX + B * stepY;
       } else {
-        k += B * scaleY;
-      }
-      
-      midpointX = (scaleX > 0) ? currentX + 0.5f : currentX - 0.5f;
+        k += B * stepY;
+      }    
     }
   }
   
   point(endX, endY);  // final point
-}
-
-void drawMidpointLine(float startX, float startY, float endX, float endY){
-  drawLine(startX, startY, endX, endY);
-}
-
-
-void AIdrawLine(float startX, float startY, float endX, float endY){
-  int x0 = round(startX);
-  int y0 = round(startY);
-  int x1 = round(endX);
-  int y1 = round(endY);
-
-  int dx = abs(x1 - x0);
-  int dy = abs(y1 - y0);
-
-  int stepX = x0 < x1 ? 1 : -1;
-  int stepY = y0 < y1 ? 1 : -1;
-
-  int err = dx - dy;
-
-  while (true) {
-    point(x0, y0);
-
-    if (x0 == x1 && y0 == y1) break;
-
-    int e2 = 2 * err;
-
-    if (e2 > -dy) {
-      err -= dy;
-      x0 += stepX;
-    }
-
-    if (e2 < dx) {
-      err += dx;
-      y0 += stepY;
-    }
-  }
 }
