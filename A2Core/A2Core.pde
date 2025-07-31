@@ -2,6 +2,7 @@ float ballX = 50;
 float ballY = 50;
 float ballSize = 25;
 
+//  Velocity & gravity of ball //
 float xVelocity = 5;
 float yVelocity = 0;
 float gravity = 1;
@@ -22,24 +23,28 @@ void setup(){
 
 void draw(){  
   
+  // Calculates the bats velocity then moves it to mouse position //
   batVelocityX = batX - mouseX;
   batVelocityY = batY - mouseY;
   
   batX = mouseX;
   batY = mouseY;
   
+  // Moves the ball //
   yVelocity += gravity;
   
   ballX += xVelocity;
   ballY += yVelocity;
   
+  // Caps the velocity of x&y to 25 //
   if(xVelocity > 25){
-    xVelocity = 15;
+    xVelocity = 25;
   }
   if(yVelocity > 25){
     yVelocity = 25;
   }
   
+  // Edge collision //
   if(ballX < 0+(ballSize/2)){
     ballX = (ballSize/2);
     xVelocity *= -1;
@@ -57,7 +62,7 @@ void draw(){
     yVelocity *= -1;
   }
   
-  // Bat colitsion
+  // Bat colitsion for top and bottom sides //
   if(ballY > batY && ballY < batY+batHeight && ballX > batX-(ballSize/2) && ballX < batX+batWidth+(ballSize/2)){
       xVelocity += batVelocityX;
       xVelocity *= -1;
@@ -69,6 +74,7 @@ void draw(){
       }
   }
   
+  // Bat colitsion for left and right sides //
   if(ballX > batX && ballX < batX+batWidth && ballY > batY-(ballSize/2) && ballY < batY+batHeight+(ballSize/2)){
       yVelocity += batVelocityY;
       yVelocity *= -1;
@@ -81,7 +87,7 @@ void draw(){
       }
   }
   
-    
+  // Draws bat and ball //
   background(255);
   fill(255, 0, 0);
   ellipse(ballX, ballY, ballSize, ballSize);
